@@ -39,12 +39,18 @@ module.exports = {
 
     var task = Browserify();
     task.add(inputs.path);
-    task.bundle(function (err, javascript) {
+    task.bundle(function (err, buffer) {
       if (err) {
         return exits.error(err);
       }
 
-      return exits.success(javascript);
+      try {
+        var javascript = buffer.toString();
+        return exits.success(javascript);
+      }
+      catch (e) {
+        return exits.error(err);
+      }
     });
 
     // stream usage- to look at later:
