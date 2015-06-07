@@ -4,21 +4,25 @@ module.exports = {
   friendlyName: 'Browserify',
 
 
-  description: 'Bundle the specified files and their dependenies into a single JavaScript file.',
+  description: 'Bundle the specified script and its required dependencies into a single JavaScript file.',
 
 
   cacheable: true,
 
 
-  sync: true,
-
-
   inputs: {
 
     path: {
-      description: 'The absolute path to the file (if path is relative, will be resolved from pwd)',
+      description: 'The absolute path to the entry point (if path is relative, will be resolved from pwd)',
       example: '/Users/mikermcneil/.tmp/foo',
       required: true
+    },
+
+    requires: {
+      friendlyName: 'Additional requires',
+      description: 'Other paths to explicitly make available to `require()`.',
+      extendedDescription: 'This is useful for situations where dependencies are dynamically required by the script you are browserifying, or if the same is true for any of _its_ dependencies.',
+      example: ['/my-code/my-things/something.js']
     }
 
   },
@@ -38,7 +42,14 @@ module.exports = {
     var Browserify = require('browserify');
 
     var task = Browserify();
+
+    // Add main
     task.add(inputs.path);
+
+    // Add additional requires
+    task.require(inputs.requires);
+
+    // Now bundle up the Node scripts into a browser-compatible JavaScript string.
     task.bundle(function (err, buffer) {
       if (err) {
         return exits.error(err);

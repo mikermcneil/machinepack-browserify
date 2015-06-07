@@ -17,6 +17,7 @@
     "machine": "^9.0.0"
   },
   "devDependencies": {
+    "machinepack-fs": "^4.1.0",
     "test-machinepack-mocha": "^2.0.0"
   },
   "machinepack": {
