@@ -83,9 +83,6 @@ module.exports = {
       }
     });
 
-    // stream usage- to look at later:
-    // task.bundle().pipe(process.stdout);
-
   },
 
 
