@@ -46,6 +46,7 @@ module.exports = {
 
 
   fn: function (inputs,exits) {
+    var util = require('util');
     var Path = require('path');
     var _ = require('lodash');
     var Browserify = require('browserify');
@@ -68,24 +69,67 @@ module.exports = {
       // OK.
       success: function(packMetadata) {
 
-        // Because there are dynamic requires in Machine.pack(), we need to explicitly
-        // tell Browserify about the machines in the pack.
-        var _requires = _.reduce(packMetadata.machines, function (memo, machineIdentity){
-          memo.push(Path.resolve(packPath,packMetadata.machineDir,machineIdentity));
-          return memo;
-        }, []);
-
         // Configure the browserify task
         var task = Browserify({
           standalone: inputs.exportAs || packMetadata.variableName
         });
 
-        // Tell browserify about the resolved paths to each machine
-        // (see above for explanation as to why we have to do this)
-        task.require(_requires);
-
         // Now add the main script (`index.js` file of pack)
-        task.add(inputs.path);
+        task.add(packPath);
+
+        var through = require('through2');
+        task.transform(function (filePath, opts){
+
+          // console.log('transforming file "%s" with opts:',filePath,opts);
+
+          // Use `through2` to build a nice little stream that will accumulate
+          // the code for us.
+          var code = '';
+          var stream;
+          stream = through.obj(function (buf, enc, next) {
+              code += buf.toString('utf8');
+              return next();
+          }, function onCodeReady(next) {
+              var isTopLevelPackIndex = _.endsWith(filePath, Path.join(packPath, 'index.js'));
+
+              // If this is not the `index.js` file of a machinepack, leave
+              // the code alone.
+              if (!isTopLevelPackIndex) {
+                this.push(new Buffer(code));
+                return next();
+              }
+
+              // TODO:
+              // Support other machinepacks required from inside the machines
+              // of the top-level pack.
+
+              // If this is a machinepack, replace the index.js file with
+              // a browserify-compatible version of the code that does not use
+              // Machine.pack() (because browserify doesn't know how to handle
+              // dynamic requires).
+              var shimCode = _.reduce(packMetadata.machines, function (memo, machineIdentity){
+                var line = util.format('  \'%s\': Machine.build( require(\'%s\') ),\n', machineIdentity, './'+Path.join(packMetadata.machineDir,machineIdentity));
+                memo += line;
+                return memo;
+              },
+              '// This shim was generated during browserification of this machinepack.\n'+
+              '// Because Machine.pack() uses dynamic require() calls, which is not supported \n'+
+              '// natively by browserify, the boilerplate index.js file in this pack was automatically\n'+
+              '// replaced with explicit requires of each machine herein.\n'+
+              'var Machine = require(\'machine\');\n'+
+              '\n'+
+              'module.exports = {\n');
+              shimCode += '};\n';
+              // console.log('\n------\n',shimCode,'\n\n');
+
+              this.push(new Buffer(shimCode));
+              return next();
+          });
+
+          // Provide our new stream to browserify
+          return stream;
+        });
+
 
         // Now bundle up the Node scripts into a browser-compatible JavaScript string.
         task.bundle(function (err, buffer) {

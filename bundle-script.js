@@ -4,7 +4,7 @@ var Filesystem = require('machinepack-fs');
 
 // Bundle the specified files and their dependenies into a single JavaScript file.
 MPBrowserify.bundleMachinepack({
-  path: '/code/machinepack-math'
+  path: '/Users/mikermcneil/code/machinepack-math'
 }).exec({
   // An unexpected error occurred.
   error: function(err) {
