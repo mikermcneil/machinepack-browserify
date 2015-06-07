@@ -1,7 +1,2 @@
-var Path = require('path');
-var Machine = require('machine');
-
+console.log('ok its running experiment.js');
 pack = require('/code/machinepack-math');
-
-// var machineDef = require('/code/machinepack-math/machines/add.js');
-// mmm = Machine.build(machineDef);

@@ -1,7 +1,7 @@
 module.exports = {
 
 
-  friendlyName: 'Browserify',
+  friendlyName: 'Bundle script',
 
 
   description: 'Bundle the specified script and its required dependencies into a single JavaScript file.',

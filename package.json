@@ -14,7 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "browserify": "^10.2.1",
-    "machine": "^9.0.0"
+    "machine": "^9.0.0",
+    "machinepack-machines": "^5.0.4"
   },
   "devDependencies": {
     "machinepack-fs": "^4.1.0",
@@ -24,7 +25,8 @@
     "friendlyName": "Browserify",
     "machineDir": "machines/",
     "machines": [
-      "bundle"
+      "bundle",
+      "bundle-machinepack"
     ]
   }
 }
