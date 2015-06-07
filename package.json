@@ -25,8 +25,7 @@
     "friendlyName": "Browserify",
     "machineDir": "machines/",
     "machines": [
-      "bundle",
-      "bundle-machinepack"
+      "bundle"
     ]
   }
 }
