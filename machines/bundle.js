@@ -61,8 +61,10 @@ module.exports = {
     }
     var task = Browserify(opts);
 
-    // Add main
+    // We both `add` and `require` the main entry point to ensure that
+    // relative-path requires (e.g. "../", "./", etc.) work properly.
     task.add(inputs.path);
+    task.require(inputs.path);
 
     // Add additional requires
     // (see note in comments above)
